@@ -9,6 +9,7 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { time } from "node:console";
 
 export const userRoleEnum = pgEnum("user_role", ["admin", "doctor", "nurse"]);
 
@@ -39,5 +40,18 @@ export const sessions = pgTable("sessions", {
   ip: text("ip"),
 });
 
+export const reportsData = pgTable("reports_data", {
+  id: serial("id").notNull(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  addedAt: timestamp("added_at",{ withTimezone: true }).notNull().defaultNow(),
+  removedAt: timestamp("removed_at", { withTimezone: true }),
+  parsedText: text("parsed_text").notNull(),
+  pagesNum: integer("pages_num").notNull(),
+  isAnonymized: boolean("is_anonymized").notNull().$defaultFn(()=>false),
+});
+
 export type Newuser = typeof users.$inferInsert;
 export type newSession = typeof sessions.$inferInsert;
+export type newReport = typeof reportsData.$inferInsert;

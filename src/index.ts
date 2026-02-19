@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import reportsRouter from "./routes/reports.routes";
 import { devNull } from "node:os";
 import devRouter from "./routes/dev.routes";
+import { cookieMiddleware } from "./middleware/requireAuth";
 
 const app = express();
 const port = Number(process.env.PORT ?? 8080);
@@ -27,7 +28,7 @@ app.get("/health/db", async (_req, res) => {
 
 
 app.use("/auth", authRouter);
-app.use("/reports", reportsRouter);
+app.use("/reports",cookieMiddleware, reportsRouter);
 app.use("/dev", devRouter);
 
 app.use((_req, res) => {
