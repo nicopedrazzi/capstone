@@ -3,7 +3,7 @@ import { userLogin, userRegistration } from "../services/auth.service";
 import { revokeCookie } from "../db/queries/sessions";
 import { db } from "../db";
 import { sessions } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq, gt, isNull } from "drizzle-orm";
 
 
 export async function registerHandler(req: Request, res: Response) {
@@ -81,8 +81,17 @@ export async function getLoggedUser(req: Request): Promise<number | null> {
   const cookie = req.cookies.session as string | undefined;
   if (!cookie) return null;
 
-  const currentSession = await db.select().from(sessions).where(eq(sessions.id, cookie));
-  if (currentSession.length === 0) return null;
+  const [currentSession] = await db
+    .select()
+    .from(sessions)
+    .where(
+      and(
+        eq(sessions.id, cookie),
+        isNull(sessions.revokedAt),
+        gt(sessions.expiresAt, new Date()),
+      ),
+    );
+  if (!currentSession) return null;
 
-  return currentSession[0]?.userId ?? null;
+  return currentSession.userId ?? null;
 }

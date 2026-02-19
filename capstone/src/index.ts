@@ -5,10 +5,16 @@ import { db } from "./db";
 import authRouter from "./routes/auth.routes";
 import cookieParser from "cookie-parser";
 import reportsRouter from "./routes/reports.routes";
-import devRouter from "./routes/dev.routes";
 import { cookieMiddleware } from "./middleware/requireAuth";
+import cors from "cors";
 
 const app = express();
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 const port = Number(process.env.PORT ?? 8080);
 
 app.use(express.json());
@@ -25,11 +31,8 @@ app.get("/health/db", async (_req, res) => {
   res.json({ ok: result[0]?.ok === 1 });
 });
 
-app.use(express.static("public"));
-
 app.use("/auth", authRouter);
 app.use("/reports",cookieMiddleware, reportsRouter);
-app.use("/dev", devRouter);
 
 app.use((_req, res) => {
   res.status(404).json({ error: "Not found" });
