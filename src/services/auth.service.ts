@@ -42,4 +42,3 @@ export async function userLogin(email: string, password: string) {
   return session;
 }
 
-export async function getLoggedUser()

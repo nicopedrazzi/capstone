@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { parseUploadedPdfFile } from "../services/reports.service";
+import { extractInfo, parseUploadedPdfFile } from "../services/reports.service";
 import { getLoggedUser } from "./auth.controller";
 import { getReport } from "../db/queries/reports";
 
@@ -23,14 +23,15 @@ export async function uploadHandler(req: Request, res: Response) {
 };
 
 export async function extractInfoHandler(req:Request,res:Response){
-    const fileId = req.body.fileId;
+    const fileId = Number(req.params.reportId);
     const report = await getReport(fileId);
     if (!report){
         res.status(400).send("Report not found");
         return;
     }
     const text = report.parsedText;
-    console.log(text);
-    res.status(200).send("succesfully obtained data")
-    return text;
+    const result = extractInfo(text);
+    console.log(result)
+    res.status(200).send(`Succesfully obtained data: ${result}`);
+    return result;
 };

@@ -11,6 +11,6 @@ reportsRouter.get("/health", (_req, res) => {
 });
 
 reportsRouter.post("/upload",uploadMiddleware, uploadHandler);
-reportsRouter.get("/reportInfo", extractInfoHandler);
+reportsRouter.get("/:reportId/info", extractInfoHandler);
 
 export default reportsRouter;
